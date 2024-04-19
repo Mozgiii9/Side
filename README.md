@@ -1,9 +1,10 @@
 ![image](https://github.com/Mozgiii9/SideNode/assets/74683169/4344c896-230f-40a9-9028-1c3e2c99e897)
 
-
 # SideNode
 
-### Дата создания файла: 03.04.2023
+### Дата создания файла: 03.04.2024
+
+### Дата обновления файла: 19.04.2024
 
 **Описание проекта:** *Side protocol* - фулл-стек омниканальная биржевая инфраструктура, предлагающая специализированную инфраструктуру, инструменты и приложения для DeFi обмена активами. Они сосредоточены на 4 принципах. Масштабируемость, совместимость, децентрализация и обмен.
 
@@ -32,23 +33,113 @@
 sudo apt update && sudo apt upgrade -y
 ```
 
-**Устанавливаем утилиту dos2unix:**
-
-```
-sudo apt install dos2unix
-```
-
 **Устанавливаем ноду с помощью скрипта:**
 
 ```
-wget https://raw.githubusercontent.com/Mozgiii9/SideNode/main/side.sh && chmod +x side.sh && dos2unix side.sh && ./side.sh
+source <(curl -s https://itrocket.net/api/testnet/side/autoinstall/)
 ```
 
-**Выполняем команды последовательно. Сперва установите софт, выполнив команду "Install". Для этого нажмите "1" на клавиатуре и подтвердите ввод нажав "Enter". Запустится установка ноды.**
+**Выполняем команды последовательно. Указываем имя кошелька, имя ноды и оставляем 26 порт. Нода установилась тогда, когда пошли логи. Выходим из режима отображения логов комбинацией клавиш CTRL+C.**
 
-**Далее выполните пункт "Create Wallet". Для этого так же нажмите "2" на клавиатуре и подтвердите ввод нажав "Enter". Сохраните Seed фразу от кошелька в надежное место:**
+**Далее обновим софт ноды. Выполняйте команды последовательно:**
 
-![image](https://github.com/Mozgiii9/SideNode/assets/74683169/e9d4a763-b90e-406f-a758-732f3f679532)
+```
+sudo systemctl stop sided
+```
+
+```
+wget https://github.com/sideprotocol/testnet/raw/main/side-testnet-3/genesis.json -O ~/.side/config/genesis.json
+```
+
+```
+SEEDS="00170c0c23c3e97c740680a7f881511faf68289a@202.182.119.24:26656,00170c0c23c3e97c740680a7f881511faf68289a@202.182.119.24:26656"
+```
+
+```
+PEERS="dcb4494c545f450ba38d60cfcba6c92dc55ebef2@80.85.242.149:34656,53e164d1b28ba845da0cec828b4f69fe1e8bf78a@65.108.153.66:26656,e9ee4fb923d5aab89207df36ce660ff1b882fc72@136.243.33.177:21656"
+```
+
+```
+sed -i -e "s/^seeds *=.*/seeds = \"$SEEDS\"/; s/^persistent_peers *=.*/persistent_peers = \"$PEERS\"/" $HOME/.side/config/config.toml
+```
+
+```
+sided config chain-id side-testnet-3
+```
+
+```
+cd $HOME
+```
+
+```
+rm -rf side
+```
+
+```
+git clone https://github.com/sideprotocol/side.git
+```
+
+```
+cd side
+```
+
+```
+git checkout v0.7.0
+```
+
+```
+make build
+```
+
+```
+sudo mv $HOME/side/build/sided $(which sided)
+```
+
+```
+sudo systemctl restart sided && sudo journalctl -u sided -f
+```
+
+**Проверим синхронизацию ноды:**
+
+```
+sided status 2>&1 | jq .SyncInfo
+```
+
+**Пока значение "catching_up" не изменится на "false" не переходите к следующему шагу!**
+
+**Когда нода синхронизировалась, можно переходить к созданию кошелька. Выполните команды последовательно, замените "$WALLET" на имя Вашего кошелька, которое Вы указали при запуске скрипта:**
+
+```
+sided keys add $WALLET
+```
+
+**Сохраните адрес кошелька а также seed-фразу (mnemonic phrase) в надежное место. Переходим к следующим шагам:**
+
+```
+WALLET_ADDRESS=$(sided keys show $WALLET -a)
+```
+
+```
+VALOPER_ADDRESS=$(sided keys show $WALLET --bech val -a)
+```
+
+```
+echo "export WALLET_ADDRESS="$WALLET_ADDRESS >> $HOME/.bash_profile
+```
+
+```
+echo "export VALOPER_ADDRESS="$VALOPER_ADDRESS >> $HOME/.bash_profile
+```
+
+```
+source $HOME/.bash_profile
+```
+
+**Еще раз проверим статус синхронизации ноды и убедимся, что catching_up равен "false":**
+
+```
+sided status 2>&1 | jq .SyncInfo
+```
 
 **Переходим в ветку с краном в Дискорде (#testnet-faucet) и запрашиваем токены отправкой сообщения:**
 
@@ -58,25 +149,36 @@ $request side-testnet-3 <АДРЕС_КОШЕЛЬКА>
 
 **Замените АДРЕС_КОШЕЛЬКА на адрес Вашего кошелька.**
 
-**Запуск ноды производится выполнением пункта "Create Validator".**
+**Для запуска ноды используйте команду "Create validator":**
 
-## У меня возникла ошибка "Error: rpc error: code = NotFound desc = rpc error: code = NotFound desc = account <АДРЕС_КОШЕЛЬКА> not found: key not found"
+```
+sided tx staking create-validator \
+--amount 1000000uside \
+--from $WALLET \
+--commission-rate 0.1 \
+--commission-max-rate 0.2 \
+--commission-max-change-rate 0.01 \
+--min-self-delegation 1 \
+--pubkey $(sided tendermint show-validator) \
+--moniker "test" \
+--identity "" \
+--details "I love blockchain" \
+--chain-id side-testnet-3 \
+--gas auto --fees 1000uside \
+-y
+```
 
-Если Вы вдруг столкнулись с подобной ошибкой, то это может говорить о 2-х вещах:
-1. Тестовые токены не пришли на указанный Вами кошелек. Попробуйте повторно запросить токены в кране в Дискорде, интервал между сообщениями - 6 часов.
-2. Нагрузка на сеть. В данный момент наблюдается большой наплыв желающих поставить ноду в данный проект. Попробуйте еще раз отправить команду "Create Validator" через 2-3 часа.
+**Замените значения:**
 
-В случае, если ничего из вышеперечисленного не помогло - подробно опишите в ветке #support в Дискорде Вашу проблему.
+*- moniker : Укажите имя Вашей ноды, которое Вы давали ей после запуска Bash-скрипта;*
 
-В данный момент я тоже испытываю проблемы в установке данной ноды. Сеть перегружена, команда активно решает проблему.
+*- details : Можете указать свое значение или оставить исходное;*
+
+После отправки команды введите пароль от Вашего кошелька. Сервер должен вернуть Вам хэш транзакции (txhash). Переходим в [эксплорер](https://testnet.itrocket.net/side/staking) и вставляем хэш транзакции в поиске. Вы увидете адрес Вашего валидатора, а также статус его работы. Обратите внимание, что валидатор запустится спустя небольшое время.
 
 ### Полезные команды
 
 **Проверить синхронизацию:**
-
-```
-source $HOME/.bash_profile
-```
 
 ```
 sided status 2>&1 | jq .SyncInfo
@@ -86,6 +188,66 @@ sided status 2>&1 | jq .SyncInfo
 
 ```
 journalctl -fu sided -o cat
+```
+
+**Посмотреть информацию о ноде:**
+
+```
+sided status 2>&1 | jq .NodeInfo
+```
+
+**Перезагрузить сервис:**
+
+```
+sudo systemctl restart sided
+```
+
+**Добавить новый кошелек:**
+
+```
+sided keys add $WALLET
+```
+
+**Восстановить кошелек:**
+
+```
+sided keys add $WALLET --recover
+```
+
+**Просмотреть список кошельков:**
+
+```
+sided keys list
+```
+
+**Проверить баланс кошелька:**
+
+```
+sided q bank balances $(sided keys show $WALLET -a)
+```
+
+**Делегировать токены себе:**
+
+```
+sided tx staking delegate $(sided keys show $WALLET --bech val -a) 1000000uside --from $WALLET --chain-id side-testnet-3 --gas auto --fees 1000uside -y
+```
+
+**Делегировать токены другому валидатору. Замените <TO_VALOPER_ADDRESS> на адрес валидатора, которому Вы хотите делегировать токены:**
+
+```
+sided tx staking delegate <TO_VALOPER_ADDRESS> 1000000uside --from $WALLET --chain-id side-testnet-3 --gas auto --fees 1000uside -y
+```
+
+**Информация о тюрьме:**
+
+```
+sided q slashing signing-info $(sided tendermint show-validator)
+```
+
+**Освободить валидатора из тюрьмы:**
+
+```
+sided tx slashing unjail --from $WALLET --chain-id side-testnet-3 --gas auto --fees 1000uside -y
 ```
 
 ### Обязательно проведите собственный ресерч проектов перед тем как ставить ноду. Сообщество NodeRunner не несет ответственность за Ваши действия и средства. Помните, проводя свой ресёрч, Вы учитесь и развиваетесь.
