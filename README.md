@@ -51,64 +51,6 @@ source <(curl -s https://itrocket.net/api/testnet/side/autoinstall/)
 
 **Указываем имя кошелька, имя ноды и оставляем 26 порт. Нода установилась тогда, когда пошли логи. Выходим из режима отображения логов комбинацией клавиш CTRL+C.**
 
-**Далее обновим софт ноды. Выполняйте команды последовательно:**
-
-```
-sudo systemctl stop sided
-```
-
-```
-wget https://github.com/sideprotocol/testnet/raw/main/side-testnet-3/genesis.json -O ~/.side/config/genesis.json
-```
-
-```
-SEEDS="00170c0c23c3e97c740680a7f881511faf68289a@202.182.119.24:26656,00170c0c23c3e97c740680a7f881511faf68289a@202.182.119.24:26656"
-```
-
-```
-PEERS="dcb4494c545f450ba38d60cfcba6c92dc55ebef2@80.85.242.149:34656,53e164d1b28ba845da0cec828b4f69fe1e8bf78a@65.108.153.66:26656,e9ee4fb923d5aab89207df36ce660ff1b882fc72@136.243.33.177:21656"
-```
-
-```
-sed -i -e "s/^seeds *=.*/seeds = \"$SEEDS\"/; s/^persistent_peers *=.*/persistent_peers = \"$PEERS\"/" $HOME/.side/config/config.toml
-```
-
-```
-sided config chain-id side-testnet-3
-```
-
-```
-cd $HOME
-```
-
-```
-rm -rf side
-```
-
-```
-git clone https://github.com/sideprotocol/side.git
-```
-
-```
-cd side
-```
-
-```
-git checkout v0.7.0
-```
-
-```
-make build
-```
-
-```
-sudo mv $HOME/side/build/sided $(which sided)
-```
-
-```
-sudo systemctl restart sided && sudo journalctl -u sided -f
-```
-
 **Проверим синхронизацию ноды:**
 
 ```
