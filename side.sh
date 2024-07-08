@@ -60,6 +60,8 @@ function install_node {
   sleep 1
 
   printGreen "1. Устанавливаем Go..." && sleep 1
+  sudo apt update && sudo apt upgrade -y
+  sudo apt install lz4
   cd $HOME
   VER="1.21.3"
   wget "https://golang.org/dl/go$VER.linux-amd64.tar.gz"
@@ -87,7 +89,7 @@ function install_node {
   sided config node tcp://localhost:${SIDE_PORT}657
   sided config keyring-backend os
   sided config chain-id S2-testnet-2
-  sided init $MONИКЕР --chain-id S2-testnet-2
+  sided init $MONIKER --chain-id S2-testnet-2
   sleep 1
   echo done
 
@@ -144,10 +146,16 @@ EOF
 
   printGreen "8. Скачиваем снапшот и запускаем ноду..." && sleep 1
   sided tendermint unsafe-reset-all --home $HOME/.side
-  if curl -s --head curl https://testnet-files.itrocket.net/side/snap_side.tar.lz4 | head -n 1 | grep "200" > /dev/null; then
-    curl https://testnet-files.itrocket.net/side/snap_side.tar.lz4 | lz4 -dc - | tar -xf - -C $HOME/.side
+  SNAP_URL="https://testnet-files.itrocket.net/side/snap_side.tar.lz4"
+  if curl -s --head $SNAP_URL | head -n 1 | grep "200" > /dev/null; then
+    echo "Скачиваем снапшот..."
+    while true; do
+      curl $SNAP_URL | lz4 -dc - | tar -xf - -C $HOME/.side && break
+      echo "Ошибка при загрузке, повторная попытка через 10 секунд..."
+      sleep 10
+    done
   else
-    echo "нет снапшота"
+    echo "Нет снапшота"
   fi
 
   sudo systemctl daemon-reload
