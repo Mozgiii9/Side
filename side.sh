@@ -37,8 +37,6 @@ function show_menu {
 
 function install_node {
   source <(curl -s https://raw.githubusercontent.com/itrocket-team/testnet_guides/main/utils/common.sh)
-  
-  printLogo
 
   read -p "Введите имя КОШЕЛЬКА: " WALLET
   echo 'export WALLET='$WALLET
