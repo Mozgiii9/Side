@@ -158,6 +158,18 @@ EOF
     echo "Нет снапшота"
   fi
 
+  sudo systemctl daemon-reload
+  sudo systemctl enable sided
+  sudo systemctl restart sided
+
+  # Проверяем статус сервиса
+  if systemctl is-active --quiet sided; then
+    echo "Сервис sided успешно запущен."
+  else
+    echo "Ошибка: сервис sided не запущен. Проверяем логи..."
+    sudo journalctl -u sided --no-pager | tail -n 20
+  fi
+
   export GOPATH=$HOME/go
   export GOBIN=$GOPATH/bin
   export PATH=$PATH:$GOPATH/bin:$GOROOT/bin
