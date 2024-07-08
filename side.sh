@@ -38,11 +38,11 @@ function show_menu {
 function install_node {
   source <(curl -s https://raw.githubusercontent.com/itrocket-team/testnet_guides/main/utils/common.sh)
 
-  read -p "Введите имя КОШЕЛЬКА: " WALLET
+  read -p "Введите имя кошелька: " WALLET
   echo 'export WALLET='$WALLET
-  read -p "Введите ваш Моникер: " MONIKER
+  read -p "Введите имя для Вашей ноды: " MONIKER
   echo 'export MONIKЕР='$MONIKER
-  read -p "Введите ваш Порт (например 17, по умолчанию 26): " PORT
+  read -p "Введите порт (например 17, по умолчанию 26): " PORT
   echo 'export PORT='$PORT
 
   echo "export WALLET="$WALLET"" >> $HOME/.bash_profile
@@ -52,10 +52,10 @@ function install_node {
   source $HOME/.bash_profile
 
   printLine
-  echo -e "Моникер:        \e[1m\e[32m$MONИКЕР\e[0m"
-  echo -e "Кошелек:        \e[1m\e[32m$WALLET\e[0m"
-  echo -e "Chain id:       \e[1m\e[32m$SIDE_CHAIN_ID\e[0m"
-  echo -e "Порт ноды:  \e[1m\e[32m$SIDE_PORT\e[0m"
+  echo -e "Имя ноды:        \e[1m\e[32m$MONИКЕР\e[0m"
+  echo -e "Имя кошелька:        \e[1m\e[32m$WALLET\e[0m"
+  echo -e "Chain ID:       \e[1m\e[32m$SIDE_CHAIN_ID\e[0m"
+  echo -e "Port:  \e[1m\e[32m$SIDE_PORT\e[0m"
   printLine
   sleep 1
 
