@@ -17,9 +17,9 @@ function show_menu {
   echo "2. Проверить синхронизацию Side Protocol"
   echo "3. Создать кошелек Side Protocol"
   echo "4. Импортировать уже существующий кошелек Side Protocol"
-  echo "5. Создать валидатора Side Protocol"
-  echo "6. Просмотреть логи ноды Side Protocol"
-  echo "7. Проверить баланс кошелька"
+  echo "5. Проверить баланс кошелька"
+  echo "6. Создать валидатора Side Protocol"
+  echo "7. Просмотреть логи ноды Side Protocol"
   echo "8. Выйти из установочного скрипта"
   read -p "Выберите опцию: " option
   case $option in
@@ -27,9 +27,9 @@ function show_menu {
     2) check_sync ;;
     3) create_wallet ;;
     4) import_wallet ;;
-    5) create_validator ;;
-    6) view_logs ;;
-    7) check_balance ;;
+    5) check_balance ;;
+    6) create_validator ;;
+    7) view_logs ;;
     8) exit 0 ;;
     *) echo "Неверный выбор, попробуйте снова" && show_menu ;;
   esac
@@ -40,7 +40,7 @@ function install_node {
 
   read -p "Введите имя кошелька: " WALLET
   echo 'export WALLET='$WALLET
-  read -p "Введите имя для Вашей ноды: " MONIKER
+  read -p "Создайте имя для Вашей ноды: " MONIKER
   echo 'export MONIKЕР='$MONIKER
   read -p "Введите порт (например 17, по умолчанию 26): " PORT
   echo 'export PORT='$PORT
@@ -189,7 +189,6 @@ function check_sync {
 }
 
 function create_wallet {
-  read -p "Введите имя КОШЕЛЬКА: " WALLET
   sided keys add $WALLET
   WALLET_ADDRESS=$(sided keys show $WALLET -a)
   VALOPER_ADDRESS=$(sided keys show $WALLET --bech val -a)
@@ -213,6 +212,16 @@ function import_wallet {
 function create_validator {
   read -p "Ранее Вы уже создавали ноду Side? [да/нет]: " response
   if [[ "$response" =~ ^([дД][аА])$ ]]; then
+    sided tx staking edit-validator \
+    --commission-rate 0.1 \
+    --new-moniker "$MONIKER" \
+    --identity "" \
+    --details "SideProtocol" \
+    --from $WALLET \
+    --chain-id S2-testnet-2 \
+    --gas auto --fees 1000uside \
+    -y
+  else
     sided tx staking create-validator \
     --amount 1000000uside \
     --from $WALLET \
@@ -224,16 +233,6 @@ function create_validator {
     --moniker "$MONIKER" \
     --identity "" \
     --details "" \
-    --chain-id S2-testnet-2 \
-    --gas auto --fees 1000uside \
-    -y
-  else
-    sided tx staking edit-validator \
-    --commission-rate 0.1 \
-    --new-moniker "$MONIKER" \
-    --identity "" \
-    --details "SideProtocol" \
-    --from $WALLET \
     --chain-id S2-testnet-2 \
     --gas auto --fees 1000uside \
     -y
