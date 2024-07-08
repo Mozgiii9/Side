@@ -43,18 +43,18 @@ function install_node {
   read -p "Введите имя КОШЕЛЬКА: " WALLET
   echo 'export WALLET='$WALLET
   read -p "Введите ваш Моникер: " MONIKER
-  echo 'export MONIKER='$MONIKER
+  echo 'export MONIKЕР='$MONIKER
   read -p "Введите ваш Порт (например 17, по умолчанию 26): " PORT
   echo 'export PORT='$PORT
 
   echo "export WALLET="$WALLET"" >> $HOME/.bash_profile
-  echo "export MONIKER="$MONIKER"" >> $HOME/.bash_profile
+  echo "export MONIKЕР="$MONИКER"" >> $HOME/.bash_profile
   echo "export SIDE_CHAIN_ID="S2-testnet-2"" >> $HOME/.bash_profile
   echo "export SIDE_PORT="$PORT"" >> $HOME/.bash_profile
   source $HOME/.bash_profile
 
   printLine
-  echo -e "Моникер:        \e[1m\e[32m$MONIKER\e[0m"
+  echo -e "Моникер:        \e[1m\e[32m$MONИКЕР\e[0m"
   echo -e "Кошелек:        \e[1m\e[32m$WALLET\e[0m"
   echo -e "Chain id:       \e[1m\e[32m$SIDE_CHAIN_ID\e[0m"
   echo -e "Порт ноды:  \e[1m\e[32m$SIDE_PORT\e[0m"
@@ -89,7 +89,7 @@ function install_node {
   sided config node tcp://localhost:${SIDE_PORT}657
   sided config keyring-backend os
   sided config chain-id S2-testnet-2
-  sided init $MONIKER --chain-id S2-testnet-2
+  sided init $MONИКЕР --chain-id S2-testnet-2
   sleep 1
   echo done
 
@@ -130,19 +130,19 @@ function install_node {
   echo done
 
   sudo tee /etc/systemd/system/sided.service > /dev/null <<EOF
-  [Unit]
-  Description=side node
-  After=network-online.target
-  [Service]
-  User=$USER
-  WorkingDirectory=$HOME/.side
-  ExecStart=$(which sided) start --home $HOME/.side
-  Restart=on-failure
-  RestartSec=5
-  LimitNOFILE=65535
-  [Install]
-  WantedBy=multi-user.target
-  EOF
+[Unit]
+Description=side node
+After=network-online.target
+[Service]
+User=$USER
+WorkingDirectory=$HOME/.side
+ExecStart=$(which sided) start --home $HOME/.side
+Restart=on-failure
+RestartSec=5
+LimitNOFILE=65535
+[Install]
+WantedBy=multi-user.target
+EOF
 
   printGreen "8. Скачиваем снапшот и запускаем ноду..." && sleep 1
   sided tendermint unsafe-reset-all --home $HOME/.side
