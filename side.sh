@@ -158,13 +158,15 @@ EOF
     echo "Нет снапшота"
   fi
 
-  sudo systemctl daemon-reload
-  sudo systemctl enable sided
-  sudo systemctl restart sided
+  export GOPATH=$HOME/go
+  export GOBIN=$GOPATH/bin
+  export PATH=$PATH:$GOPATH/bin:$GOROOT/bin
+  echo "Установка завершена. Возвращение в меню..."
   show_menu
 }
 
 function check_sync {
+  
   sided status 2>&1 | jq
   show_menu
 }
