@@ -46,7 +46,7 @@ function install_node {
   echo 'export PORT='$PORT
 
   echo "export WALLET="$WALLET"" >> $HOME/.bash_profile
-  echo "export MONIKЕР="$MONIKER"" >> $HOME/.bash_profile
+  echo "export MONIKER="$MONIKER"" >> $HOME/.bash_profile
   echo "export SIDE_CHAIN_ID="S2-testnet-2"" >> $HOME/.bash_profile
   echo "export SIDE_PORT="$PORT"" >> $HOME/.bash_profile
   source $HOME/.bash_profile
