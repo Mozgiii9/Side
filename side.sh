@@ -166,8 +166,13 @@ EOF
 }
 
 function check_sync {
-  
-  sided status 2>&1 | jq
+  STATUS=$(sided status 2>&1)
+  if echo "$STATUS" | jq . >/dev/null 2>&1; then
+    echo "$STATUS" | jq
+  else
+    echo "Ошибка: вывод команды не является корректным JSON"
+    echo "$STATUS"
+  fi
   show_menu
 }
 
