@@ -46,13 +46,13 @@ function install_node {
   echo 'export PORT='$PORT
 
   echo "export WALLET="$WALLET"" >> $HOME/.bash_profile
-  echo "export MONIKЕР="$MONИКER"" >> $HOME/.bash_profile
+  echo "export MONIKЕР="$MONIKER"" >> $HOME/.bash_profile
   echo "export SIDE_CHAIN_ID="S2-testnet-2"" >> $HOME/.bash_profile
   echo "export SIDE_PORT="$PORT"" >> $HOME/.bash_profile
   source $HOME/.bash_profile
 
   printLine
-  echo -e "Имя ноды:        \e[1m\e[32m$MONИКЕР\e[0m"
+  echo -e "Имя ноды:        \e[1m\e[32m$MONIKER\e[0m"
   echo -e "Имя кошелька:        \e[1m\e[32m$WALLET\e[0m"
   echo -e "Chain ID:       \e[1m\e[32m$SIDE_CHAIN_ID\e[0m"
   echo -e "Port:  \e[1m\e[32m$SIDE_PORT\e[0m"
